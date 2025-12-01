@@ -51,17 +51,21 @@ pub fn part2() -> io::Result<()> {
 	
 	while file.read_until(b'\n', &mut line_buf)? > 1 {
 		let delta = parse_line(&line_buf);
-		cursor = (cursor + delta).rem_euclid(100);
 		
-		if delta > 0 {
-			count += (cursor + delta) / 100;
+		count += if delta > 0 {
+			(cursor + delta) / 100
 		} else if delta < 0 {
-			count += (100 - cursor - delta) / 100;
+			if cursor == 0 {
+				// When the turns starts at 0, the initial 0 doesn't count
+				-delta / 100
+			} else {
+				(100 - cursor - delta) / 100
+			}
 		} else if cursor == 0 {
-			// When delta == 0 && cursor == 0, the turn techincally ends at a 0
-			count += 1;
-		}
+			1 // When delta == 0 && cursor == 0, the turn techincally ends at a 0
+		} else {0};
 		
+		cursor = (cursor + delta).rem_euclid(100);
 		line_buf.clear();
 	}
 	
