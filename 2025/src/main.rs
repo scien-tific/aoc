@@ -1,30 +1,59 @@
-mod day1;
-
 use std::{
 	env,
-	io::{self, BufReader},
-	path::Path,
 	fs::File,
+	time::Instant,
+	error::Error,
 };
 
 
-const INPUT_DIR: &'static str = "input/";
-
-
-pub fn open_input<P>(name: P) -> io::Result<BufReader<File>>
-where P: AsRef<Path> {
-	let path = Path::new(INPUT_DIR).join(name.as_ref());
-	Ok(BufReader::new(File::open(path)?))
+fn main() {
+	match run() {
+		Err(err) => println!("ERROR: {err}"),
+		_ => ()
+	}
 }
 
 
-fn main() -> io::Result<()> {
+fn run() -> Result<(), Box<dyn Error>> {
 	let mut args = env::args().skip(1);
-	let name = args.next().expect("No solution name!");
+	let name = args.next().ok_or("No solution name!")?;
+	let path = args.next().ok_or("No input path!")?;
+	let (out, elapsed) = run_solution(&name, &path)?;
 	
-	match name.to_ascii_lowercase().as_str() {
-		"d1p1" => day1::part1(),
-		"d1p2" => day1::part2(),
-		_ => panic!("Mangled solution name!")
+	println!("{out} (elapsed: {elapsed} µs)");
+	Ok(())
+}
+
+
+fn benchmark<E>(func: fn(File) -> Result<String, E>, input: File)
+-> Result<(String, u128), Box<dyn Error>>
+where E: Error + 'static {
+	let timer = Instant::now();
+	let result = func(input)?;
+	let elapsed = timer.elapsed().as_micros();
+	
+	Ok((result, elapsed))
+}
+
+
+macro_rules! solutions {
+	( $( $module:ident { $( $name:literal => $func:ident ),* } ),* ) => {
+		$( mod $module; )*
+		
+		fn run_solution(name: &str, path: &str) -> Result<(String, u128), Box<dyn Error>> {
+			let input = File::open(path)?;
+			match name {
+				$( $( $name => benchmark($module::$func, input), )* )*
+				_ => Err("Invalid solution name!".into())
+			}
+		}
+	}
+}
+
+
+solutions! {
+	day1 {
+		"d1p1" => part1,
+		"d1p2" => part2
 	}
 }

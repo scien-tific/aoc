@@ -1,5 +1,7 @@
-use crate::open_input;
-use std::io::{self, BufRead};
+use std::{
+	io::{self, BufRead, BufReader},
+	fs::File,
+};
 
 
 fn parse_int(buf: &[u8]) -> i32 {
@@ -15,7 +17,7 @@ fn parse_int(buf: &[u8]) -> i32 {
 }
 
 
-pub fn parse_line(buf: &[u8]) -> i32 {
+fn parse_line(buf: &[u8]) -> i32 {
 	let end = buf.len() - 1;
 	let buf = &buf[..end]; // Ignore newline
 	let dir = if buf[0] == b'L' {-1} else {1};
@@ -25,8 +27,8 @@ pub fn parse_line(buf: &[u8]) -> i32 {
 }
 
 
-pub fn part1() -> io::Result<()> {
-	let mut file = open_input("day1.txt")?;
+pub fn part1(file: File) -> io::Result<String> {
+	let mut file = BufReader::new(file);
 	let mut cursor = 50;
 	let mut line_buf = Vec::new();
 	let mut count = 0;
@@ -38,13 +40,12 @@ pub fn part1() -> io::Result<()> {
 		line_buf.clear();
 	}
 	
-	println!("Password: {count}");
-	Ok(())
+	Ok(count.to_string())
 }
 
 
-pub fn part2() -> io::Result<()> {
-	let mut file = open_input("day1.txt")?;
+pub fn part2(file: File) -> io::Result<String> {
+	let mut file = BufReader::new(file);
 	let mut cursor = 50;
 	let mut line_buf = Vec::new();
 	let mut count = 0;
@@ -69,6 +70,5 @@ pub fn part2() -> io::Result<()> {
 		line_buf.clear();
 	}
 	
-	println!("Password: {count}");
-	Ok(())
+	Ok(count.to_string())
 }
