@@ -1,43 +1,24 @@
-use std::{
-	io::{self, BufRead, BufReader},
-	fs::File,
-};
+use crate::prelude::*;
 
 
-fn parse_int(buf: &[u8]) -> i32 {
-	let mut exp = 1;
-	let mut num = 0;
+fn parse_line<R: Read>(parser: &mut SimpleParser<R>) -> io::Result<i64> {
+	let dir = if parser.take()? == b'L' {-1} else {1};
+	let delta = parser.parse_i64()? * dir;
+	parser.eat(b'\n')?;
 	
-	for c in buf.iter().rev() {
-		num += i32::from(c - b'0') * exp;
-		exp *= 10;
-	}
-	
-	num
-}
-
-
-fn parse_line(buf: &[u8]) -> i32 {
-	let end = buf.len() - 1;
-	let buf = &buf[..end]; // Ignore newline
-	let dir = if buf[0] == b'L' {-1} else {1};
-	let num = parse_int(&buf[1..]);
-	
-	num * dir
+	Ok(delta)
 }
 
 
 pub fn part1(file: File) -> io::Result<String> {
-	let mut file = BufReader::new(file);
+	let mut parser = SimpleParser::new_buf(file)?;
 	let mut cursor = 50;
-	let mut line_buf = Vec::new();
 	let mut count = 0;
 	
-	while file.read_until(b'\n', &mut line_buf)? > 1 {
-		let delta = parse_line(&line_buf);
+	while !parser.at_eof() {
+		let delta = parse_line(&mut parser)?;
 		cursor = (cursor + delta).rem_euclid(100);
 		if cursor == 0 {count += 1;}
-		line_buf.clear();
 	}
 	
 	Ok(count.to_string())
@@ -45,13 +26,12 @@ pub fn part1(file: File) -> io::Result<String> {
 
 
 pub fn part2(file: File) -> io::Result<String> {
-	let mut file = BufReader::new(file);
+	let mut parser = SimpleParser::new_buf(file)?;
 	let mut cursor = 50;
-	let mut line_buf = Vec::new();
 	let mut count = 0;
 	
-	while file.read_until(b'\n', &mut line_buf)? > 1 {
-		let delta = parse_line(&line_buf);
+	while !parser.at_eof() {
+		let delta = parse_line(&mut parser)?;
 		
 		count += if delta > 0 {
 			(cursor + delta) / 100
@@ -67,7 +47,6 @@ pub fn part2(file: File) -> io::Result<String> {
 		} else {0};
 		
 		cursor = (cursor + delta).rem_euclid(100);
-		line_buf.clear();
 	}
 	
 	Ok(count.to_string())

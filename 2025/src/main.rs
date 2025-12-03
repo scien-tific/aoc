@@ -1,3 +1,6 @@
+pub mod common;
+pub mod prelude;
+
 use std::{
 	env,
 	fs::File,
@@ -55,5 +58,10 @@ solutions! {
 	day1 {
 		"d1p1" => part1,
 		"d1p2" => part2
+	},
+	
+	day2 {
+		"d2p1" => part1,
+		"d2p2" => part2
 	}
 }
