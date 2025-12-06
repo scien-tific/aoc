@@ -32,18 +32,21 @@ impl<R: Read> SimpleParser<R> {
 	pub fn take(&mut self) -> io::Result<u8> {
 		let prev = self.peek()?;
 		self.advance()?;
+		
 		Ok(prev)
 	}
 	
-	pub fn take_while<F>(&mut self, mut pred: F, buf: &mut Vec<u8>) -> io::Result<()>
+	pub fn take_while<F>(&mut self, mut pred: F, buf: &mut Vec<u8>) -> io::Result<usize>
 	where F: FnMut(u8) -> bool {
+		let prev_len = buf.len();
+		
 		while let Some(b) = self.peek {
 			if !pred(b) {break;}
 			buf.push(b);
 			self.advance()?;
 		}
 		
-		Ok(())
+		Ok(buf.len() - prev_len)
 	}
 	
 	pub fn eat(&mut self, value: u8) -> io::Result<()> {
@@ -57,6 +60,7 @@ impl<R: Read> SimpleParser<R> {
 	pub fn try_eat(&mut self, value: u8) -> io::Result<bool> {
 		let eq = self.peek == Some(value);
 		if eq {self.advance()?;}
+		
 		Ok(eq)
 	}
 	
@@ -75,6 +79,7 @@ impl<R: Read> SimpleParser<R> {
 	pub fn parse_i64(&mut self) -> io::Result<i64> {
 		let sign = if self.try_eat(b'-')? {-1} else {1};
 		let num = self.parse_u64()? as i64; // Lossy cast since overflow isn't handled anyway
+		
 		Ok(num * sign)
 	}
 }

@@ -63,5 +63,10 @@ solutions! {
 	day2 {
 		"d2p1" => part1,
 		"d2p2" => part2
+	},
+	
+	day3 {
+		"d3p1" => part1,
+		"d3p2" => part2
 	}
 }
