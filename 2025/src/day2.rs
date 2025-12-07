@@ -52,7 +52,7 @@ fn sum_invalid(start: u64, end: u64, count: u32, set: &mut HashSet<u64>) {
 }
 
 
-pub fn part1(file: File) -> io::Result<String> {
+pub fn part1(file: File) -> Result<String, AocErr> {
 	let mut parser = SimpleParser::new_buf(file)?;
 	let mut set = HashSet::new();
 	
@@ -67,7 +67,7 @@ pub fn part1(file: File) -> io::Result<String> {
 }
 
 
-pub fn part2(file: File) -> io::Result<String> {
+pub fn part2(file: File) -> Result<String, AocErr> {
 	// Only cases with a prime number of repeats need to be considered,
 	// since anything divisible into 4 repeated patterns can also be represented as just 2, etc.
 	const PRIMES: [u32; 8] = [2, 3, 5, 7, 11, 13, 17, 19];

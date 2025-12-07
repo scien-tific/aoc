@@ -10,7 +10,7 @@ fn parse_line<R: Read>(parser: &mut SimpleParser<R>) -> io::Result<i64> {
 }
 
 
-pub fn part1(file: File) -> io::Result<String> {
+pub fn part1(file: File) -> Result<String, AocErr> {
 	let mut parser = SimpleParser::new_buf(file)?;
 	let mut cursor = 50;
 	let mut count = 0;
@@ -25,7 +25,7 @@ pub fn part1(file: File) -> io::Result<String> {
 }
 
 
-pub fn part2(file: File) -> io::Result<String> {
+pub fn part2(file: File) -> Result<String, AocErr> {
 	let mut parser = SimpleParser::new_buf(file)?;
 	let mut cursor = 50;
 	let mut count = 0;

@@ -45,7 +45,7 @@ fn joltage(buf: &[u8], count: usize) -> io::Result<u64> {
 }
 
 
-pub fn part1(file: File) -> io::Result<String> {
+pub fn part1(file: File) -> Result<String, AocErr> {
 	let mut reader = BufReader::new(file);
 	let mut buf = Vec::new();
 	let mut total = 0;
@@ -58,7 +58,7 @@ pub fn part1(file: File) -> io::Result<String> {
 }
 
 
-pub fn part2(file: File) -> io::Result<String> {
+pub fn part2(file: File) -> Result<String, AocErr> {
 	let mut reader = BufReader::new(file);
 	let mut buf = Vec::new();
 	let mut total = 0;
