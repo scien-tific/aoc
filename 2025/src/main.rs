@@ -138,5 +138,10 @@ solutions! {
 	day4 {
 		"d4p1" => part1,
 		"d4p2" => part2
+	},
+	
+	day5 {
+		"d5p1" => part1,
+		"d5p2" => part2
 	}
 }
