@@ -2,7 +2,7 @@ use crate::prelude::*;
 use std::collections::HashSet;
 
 
-fn parse_range<R: Read>(parser: &mut SimpleParser<R>) -> io::Result<(u64, u64)> {
+fn parse_range<R: BufRead>(parser: &mut SimpleParser<R>) -> io::Result<(u64, u64)> {
 	let start = parser.parse_u64()?;
 	parser.eat(b'-')?;
 	let end = parser.parse_u64()?;
@@ -53,10 +53,10 @@ fn sum_invalid(start: u64, end: u64, count: u32, set: &mut HashSet<u64>) {
 
 
 pub fn part1(file: File) -> Result<String, AocErr> {
-	let mut parser = SimpleParser::new_buf(file)?;
+	let mut parser = SimpleParser::new_buf(file);
 	let mut set = HashSet::new();
 	
-	while !parser.at_eof() {
+	while !parser.at_eof()? {
 		let (start, end) = parse_range(&mut parser)?;
 		sum_invalid(start, end, 2, &mut set);
 		if !parser.try_eat(b',')? {break;}
@@ -72,10 +72,10 @@ pub fn part2(file: File) -> Result<String, AocErr> {
 	// since anything divisible into 4 repeated patterns can also be represented as just 2, etc.
 	const PRIMES: [u32; 8] = [2, 3, 5, 7, 11, 13, 17, 19];
 	
-	let mut parser = SimpleParser::new_buf(file)?;
+	let mut parser = SimpleParser::new_buf(file);
 	let mut set = HashSet::new();
 	
-	while !parser.at_eof() {
+	while !parser.at_eof()? {
 		let (start, end) = parse_range(&mut parser)?;
 		let len = digits(end);
 		

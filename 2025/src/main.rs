@@ -63,8 +63,6 @@ fn run() -> Result<(), AocErr> {
 	
 	if let Some(count_str) = args.next() {
 		let count = count_str.parse()?;
-		if count == 0 {return Ok(());}
-		
 		let (best, worst, avg) = benchmark(func, count, &path)?;
 		println!("Best: {best} µs, Worst: {worst} µs, Avg: {avg} µs");
 	} else {
@@ -78,6 +76,8 @@ fn run() -> Result<(), AocErr> {
 
 
 fn benchmark(func: Solution, count: u32, path: &str) -> Result<(u128, u128, u128), AocErr> {
+	if count == 0 {return Ok((0, 0, 0));}
+	
 	let mut worst = u128::MIN;
 	let mut best = u128::MAX;
 	let mut sum = 0;
@@ -133,5 +133,10 @@ solutions! {
 	day3 {
 		"d3p1" => part1,
 		"d3p2" => part2
+	},
+	
+	day4 {
+		"d4p1" => part1,
+		"d4p2" => part2
 	}
 }

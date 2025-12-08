@@ -1,14 +1,4 @@
 use crate::prelude::*;
-use std::io::BufReader;
-
-
-fn parse_line<R: BufRead>(reader: &mut R, buf: &mut Vec<u8>) -> io::Result<bool> {
-	buf.clear();
-	reader.read_until(b'\n', buf)?;
-	buf.pop(); // Ignore newline
-	
-	Ok(!buf.is_empty())
-}
 
 
 fn max_num(slice: &[u8]) -> (usize, u8) {
@@ -41,17 +31,18 @@ fn joltage(buf: &[u8], count: usize) -> io::Result<u64> {
 		end += 1;
 	}
 	
-	SimpleParser::new(&nums[..])?.parse_u64()
+	SimpleParser::new(&nums[..]).parse_u64()
 }
 
 
 pub fn part1(file: File) -> Result<String, AocErr> {
-	let mut reader = BufReader::new(file);
+	let mut parser = SimpleParser::new_buf(file);
 	let mut buf = Vec::new();
 	let mut total = 0;
 	
-	while parse_line(&mut reader, &mut buf)? {
+	while parser.take_line(b'\n', &mut buf)? > 0 {
 		total += joltage(&buf, 2)?;
+		buf.clear();
 	}
 	
 	Ok(total.to_string())
@@ -59,12 +50,13 @@ pub fn part1(file: File) -> Result<String, AocErr> {
 
 
 pub fn part2(file: File) -> Result<String, AocErr> {
-	let mut reader = BufReader::new(file);
+	let mut parser = SimpleParser::new_buf(file);
 	let mut buf = Vec::new();
 	let mut total = 0;
 	
-	while parse_line(&mut reader, &mut buf)? {
+	while parser.take_line(b'\n', &mut buf)? > 0 {
 		total += joltage(&buf, 12)?;
+		buf.clear();
 	}
 	
 	Ok(total.to_string())

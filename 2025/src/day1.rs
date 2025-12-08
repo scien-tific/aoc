@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 
-fn parse_line<R: Read>(parser: &mut SimpleParser<R>) -> io::Result<i64> {
+fn parse_line<R: BufRead>(parser: &mut SimpleParser<R>) -> io::Result<i64> {
 	let dir = if parser.take()? == b'L' {-1} else {1};
 	let delta = parser.parse_i64()? * dir;
 	parser.eat(b'\n')?;
@@ -11,11 +11,11 @@ fn parse_line<R: Read>(parser: &mut SimpleParser<R>) -> io::Result<i64> {
 
 
 pub fn part1(file: File) -> Result<String, AocErr> {
-	let mut parser = SimpleParser::new_buf(file)?;
+	let mut parser = SimpleParser::new_buf(file);
 	let mut cursor = 50;
 	let mut count = 0;
 	
-	while !parser.at_eof() {
+	while !parser.at_eof()? {
 		let delta = parse_line(&mut parser)?;
 		cursor = (cursor + delta).rem_euclid(100);
 		if cursor == 0 {count += 1;}
@@ -26,11 +26,11 @@ pub fn part1(file: File) -> Result<String, AocErr> {
 
 
 pub fn part2(file: File) -> Result<String, AocErr> {
-	let mut parser = SimpleParser::new_buf(file)?;
+	let mut parser = SimpleParser::new_buf(file);
 	let mut cursor = 50;
 	let mut count = 0;
 	
-	while !parser.at_eof() {
+	while !parser.at_eof()? {
 		let delta = parse_line(&mut parser)?;
 		
 		count += if delta > 0 {
