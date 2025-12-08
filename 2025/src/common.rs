@@ -169,12 +169,10 @@ impl BitGrid {
 	}
 	
 	pub fn get(&self, x: isize, y: isize) -> bool {
-		let (idx, bit) = match self.pos_idx(x, y) {
-			Some(val) => val,
-			None => return false,
-		};
-		
-		(self.chunks[idx] >> bit) & 1 == 1
+		match self.pos_idx(x, y) {
+			Some((idx, bit)) => (self.chunks[idx] >> bit) & 1 == 1,
+			None => false,
+		}
 	}
 	
 	pub fn set(&mut self, x: isize, y: isize, value: bool) {
@@ -187,9 +185,9 @@ impl BitGrid {
 		let shift = 1 << bit;
 		
 		if value {
-			self.chunks[idx] = chunk ^ (chunk & shift);
-		} else {
 			self.chunks[idx] = chunk | shift;
+		} else {
+			self.chunks[idx] = chunk ^ (chunk & shift);
 		}
 	}
 }
@@ -198,11 +196,18 @@ impl BitGrid {
 	fn pos_idx(&self, x: isize, y: isize) -> Option<(usize, usize)> {
 		if x < 0 || y < 0 {return None;}
 		
-		let chunk_width = self.width.div_ceil(64) as isize;
+		let x = x as usize;
+		let y = y as usize;
+		
+		let chunk_width = self.width.div_ceil(64);
+		let height = self.chunks.len() / chunk_width;
+		
+		if x >= self.width || y >= height {return None;}
+		
 		let idx = x / 64 + y * chunk_width;
 		let bit = x % 64;
 		
-		Some((idx as usize, bit as usize))
+		Some((idx, bit))
 	}
 }
 
