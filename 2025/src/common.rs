@@ -40,32 +40,18 @@ impl<R: BufRead> SimpleParser<R> {
 		Ok(peek)
 	}
 	
-	pub fn take_while<F>(&mut self, mut pred: F, buf: &mut Vec<u8>) -> io::Result<usize>
+	pub fn take_while<F>(&mut self, pred: F, buf: &mut Vec<u8>) -> io::Result<usize>
 	where F: FnMut(u8) -> bool {
 		let prev_len = buf.len();
-		
-		loop {
-			let rbuf = self.reader.fill_buf()?;
-			if rbuf.is_empty() {break;}
-			
-			// Find index of first non-match
-			let idx = rbuf.iter()
-				.enumerate()
-				.find(|(_, b)| !pred(**b))
-				.map(|(i, _)| i);
-			
-			if let Some(end) = idx {
-				buf.extend(&rbuf[..end]);
-				self.reader.consume(end);
-				break;
-			} else {
-				let len = rbuf.len();
-				buf.extend(rbuf);
-				self.reader.consume(len);
-			}
-		}
-		
-		Ok(buf.len() - prev_len)
+		self.take_chunks(pred, |c| buf.extend(c))?;
+		Ok(prev_len - buf.len())
+	}
+	
+	pub fn skip_while<F>(&mut self, pred: F) -> io::Result<usize>
+	where F: FnMut(u8) -> bool {
+		let mut count = 0;
+		self.take_chunks(pred, |c| count += c.len())?;
+		Ok(count)
 	}
 	
 	pub fn take_line(&mut self, sep: u8, buf: &mut Vec<u8>) -> io::Result<usize> {
@@ -140,6 +126,30 @@ impl<R: BufRead> SimpleParser<R> {
 		}
 		
 		Ok(BitGrid::from_chunks(chunks, width))
+	}
+}
+
+impl<R: BufRead> SimpleParser<R> {
+	fn take_chunks<P, F>(&mut self, mut pred: P, mut func: F) -> io::Result<()>
+	where P: FnMut(u8) -> bool, F: FnMut(&[u8]) {
+		loop {
+			let buf = self.reader.fill_buf()?;
+			if buf.is_empty() {break;}
+			
+			// Find index of first non-match
+			let len = buf.len();
+			let end = buf.iter()
+				.enumerate()
+				.find(|(_, b)| !pred(**b))
+				.map(|(i, _)| i)
+				.unwrap_or(len);
+			
+			func(&buf[..end]);
+			self.reader.consume(end);
+			if end < len {break;}
+		}
+		
+		Ok(())
 	}
 }
 
