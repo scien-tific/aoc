@@ -191,13 +191,12 @@ impl BitGrid {
 			None => return,
 		};
 		
-		let chunk = self.chunks[idx];
 		let shift = 1 << bit;
-		
 		if value {
-			self.chunks[idx] = chunk | shift;
+			self.chunks[idx] |= shift;
 		} else {
-			self.chunks[idx] = chunk ^ (chunk & shift);
+			let chunk = self.chunks[idx];
+			self.chunks[idx] ^= chunk & shift;
 		}
 	}
 }
@@ -218,6 +217,88 @@ impl BitGrid {
 		let bit = x % 64;
 		
 		Some((idx, bit))
+	}
+}
+
+
+#[derive(Debug, Clone)]
+pub struct BitVec {
+	chunks: Vec<u64>,
+	len: usize,
+}
+
+impl BitVec {
+	pub fn from_chunks(chunks: Vec<u64>, len: usize) -> Self {
+		Self {chunks, len}
+	}
+	
+	pub fn new() -> Self {
+		Self {
+			chunks: Vec::new(),
+			len: 0,
+		}
+	}
+	
+	pub fn zero(len: usize) -> Self {
+		Self {
+			chunks: vec![0; len.div_ceil(64)],
+			len
+		}
+	}
+	
+	pub fn len(&self) -> usize {
+		self.len
+	}
+	
+	pub fn get(&self, idx: usize) -> bool {
+		let ci = idx / 64;
+		let bi = idx % 64;
+		
+		(self.chunks[ci] >> bi) & 1 == 1
+	}
+	
+	pub fn set(&mut self, idx: usize, value: bool) {
+		let ci = idx / 64;
+		let bi = idx % 64;
+		let shift = 1 << bi;
+		
+		if value {
+			self.chunks[ci] |= shift;
+		} else {
+			let chunk = self.chunks[ci];
+			self.chunks[ci] ^= chunk & shift;
+		}
+	}
+	
+	pub fn push(&mut self, value: bool) {
+		self.len += 1;
+		
+		if self.len > self.chunks.len() * 64 {
+			self.chunks.push(0);
+		}
+		
+		if value {
+			let ci = (self.len - 1) / 64;
+			let bi = (self.len - 1) % 64;
+			self.chunks[ci] |= 1 << bi;
+		}
+	}
+	
+	pub fn pop(&mut self) -> bool {
+		self.len -= 1;
+		
+		let ci = self.len / 64;
+		let bi = self.len % 64;
+		let shift = 1 << bi;
+		let value = self.chunks[ci] & shift;
+		self.chunks[ci] ^= value;
+		
+		value != 0
+	}
+	
+	pub fn clear(&mut self) {
+		self.chunks.clear();
+		self.len = 0;
 	}
 }
 

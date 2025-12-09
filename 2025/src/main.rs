@@ -148,5 +148,10 @@ solutions! {
 	day6 {
 		"d6p1" => part1,
 		"d6p2" => part2
+	},
+	
+	day7 {
+		"d7p1" => part1,
+		"d7p2" => part2
 	}
 }
