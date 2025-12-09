@@ -14,3 +14,4 @@ Each listed time is the best of 100 attempts, gotten with the default release pr
 | [4](2025/src/day4.rs) |         241 |       5 564 |
 | [5](2025/src/day5.rs) |          71 |          19 |
 | [6](2025/src/day6.rs) |          77 |          42 |
+| [7](2025/src/day7.rs) |          35 |          34 |
